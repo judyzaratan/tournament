@@ -34,8 +34,8 @@ def countPlayers():
     DB = connect()
     c = DB.cursor()
     count = c.execute("select count(*) from players")
-    count = c.fetchall()
-    print count
+    count = c.fetchone()
+    count = count[0]
     DB.close()
     return count
 
