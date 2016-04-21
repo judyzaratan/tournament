@@ -34,6 +34,7 @@ def countPlayers():
     DB = connect()
     c = DB.cursor()
     count = c.execute("select count(*) from players")
+    #Uses fetchone due to one row resulting from count aggregation
     count = c.fetchone()
     count = count[0]
     DB.close()
