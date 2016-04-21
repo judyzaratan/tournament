@@ -7,5 +7,5 @@
 -- these lines here.
 
 
-CREATE TABLE players (id SERIAL PRIMARY KEY, name TEXT);
+CREATE TABLE players ( name TEXT, id SERIAL PRIMARY KEY);
 CREATE TABLE matches (win INTEGER references players(id), loss INTEGER references players(id));
