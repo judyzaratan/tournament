@@ -73,13 +73,13 @@ def playerStandings():
     """
     DB = connect()
     c = DB.cursor()
-    playerStandings = c.execute("select players.id, players.name, standings.match, standings.win from players left join standings on players.id = standings.player")
+    playerStandings = c.execute("select players.id, players.name, standings.win, standings.match from players left join standings on players.id = standings.player")
     playerStandings = c.fetchall()
     for playerStanding in playerStandings:
         if playerStanding[2] is None:
-            update = c.execute("insert into standings (player, match, win) values (%s, 0, 0)", (playerStanding[0],))
+            update = c.execute("insert into standings (player, win, match) values (%s, 0, 0)", (playerStanding[0],))
             DB.commit()
-    playerStandings = c.execute ("select players.id, players.name,  standings.match, standings.win from players left join standings on players.id = standings.player")
+    playerStandings = c.execute ("select players.id, players.name,  standings.win, standings.match from players left join standings on players.id = standings.player")
     playerStandings = c.fetchall()
     DB.close()
     return playerStandings
@@ -92,6 +92,14 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    DB = connect()
+    c = DB.cursor()
+    c.execute("update standings set win = win + 1, match = match + 1 where player = (%s)", (winner,))
+    c.execute("update standings set match = match + 1 where player = (%s)", (loser,))
+
+    DB.commit()
+    DB.close()
+
  
  
 def swissPairings():
@@ -109,5 +117,6 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    
 
 
