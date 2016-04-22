@@ -7,5 +7,17 @@
 -- these lines here.
 
 
-CREATE TABLE players ( name TEXT, id SERIAL PRIMARY KEY);
-CREATE TABLE standings (player INTEGER UNIQUE references players(id),  match INTEGER, win INTEGER);
+CREATE TABLE players
+	(
+		p_id SERIAL PRIMARY KEY,
+		name TEXT
+	);
+
+CREATE TABLE standings
+	(
+		id SERIAL PRIMARY KEY,
+		p_id INTEGER UNIQUE,
+		match INTEGER,
+		win INTEGER,
+		FOREIGN KEY (p_id) references players(p_id)
+	);
