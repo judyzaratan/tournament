@@ -15,7 +15,7 @@ def deleteMatches():
     """Remove all the match records from the database."""
     DB = connect()
     c = DB.cursor()
-    c.execute("delete from matches");
+    c.execute("delete from standings");
     DB.commit()
     DB.close()
 
@@ -36,6 +36,7 @@ def countPlayers():
     count = c.execute("select count(*) from players")
     #Uses fetchone due to one row resulting from count aggregation
     count = c.fetchone()
+    #grabs first item in list
     count = count[0]
     DB.close()
     return count
@@ -52,7 +53,7 @@ def registerPlayer(name):
     """
     DB = connect()
     c = DB.cursor()
-    c.execute("insert into players values (%s)", (name,))
+    c.execute("insert into players values (%s)", (name,))    
     DB.commit()
     DB.close()
 
@@ -70,6 +71,18 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    DB = connect()
+    c = DB.cursor()
+    playerStandings = c.execute("select players.id, players.name, standings.match, standings.win from players left join standings on players.id = standings.player")
+    playerStandings = c.fetchall()
+    for playerStanding in playerStandings:
+        if playerStanding[2] is None:
+            update = c.execute("insert into standings (player, match, win) values (%s, 0, 0)", (playerStanding[0],))
+            DB.commit()
+    playerStandings = c.execute ("select players.id, players.name,  standings.match, standings.win from players left join standings on players.id = standings.player")
+    playerStandings = c.fetchall()
+    DB.close()
+    return playerStandings
 
 
 def reportMatch(winner, loser):

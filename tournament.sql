@@ -8,4 +8,4 @@
 
 
 CREATE TABLE players ( name TEXT, id SERIAL PRIMARY KEY);
-CREATE TABLE matches (win INTEGER references players(id), loss INTEGER references players(id));
+CREATE TABLE standings (player INTEGER references players(id),  match INTEGER, win INTEGER);
