@@ -53,7 +53,7 @@ def registerPlayer(name):
     """
     DB = connect()
     c = DB.cursor()
-    c.execute("insert into players values (%s)", (name,))    
+    c.execute("insert into players values (%s)", (name,))
     DB.commit()
     DB.close()
 
@@ -73,13 +73,13 @@ def playerStandings():
     """
     DB = connect()
     c = DB.cursor()
-    playerStandings = c.execute("select players.id, players.name, standings.win, standings.match from players left join standings on players.id = standings.player")
+    playerStandings = c.execute("select players.id, players.name, standings.win, standings.match from players left join standings on players.id = standings.player order by win")
     playerStandings = c.fetchall()
     for playerStanding in playerStandings:
         if playerStanding[2] is None:
             update = c.execute("insert into standings (player, win, match) values (%s, 0, 0)", (playerStanding[0],))
             DB.commit()
-    playerStandings = c.execute ("select players.id, players.name,  standings.win, standings.match from players left join standings on players.id = standings.player")
+    playerStandings = c.execute ("select players.id, players.name,  standings.win, standings.match from players left join standings on players.id = standings.player order by win")
     playerStandings = c.fetchall()
     DB.close()
     return playerStandings
@@ -100,8 +100,6 @@ def reportMatch(winner, loser):
     DB.commit()
     DB.close()
 
- 
- 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
@@ -117,6 +115,15 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-    
+    DB = connect()
+    c = DB.cursor()
+    results = playerStandings()
+    pairings = []
+    for i in range(0, len(results), 2):
+        tup = (results[i][0], results[i][1], results[i+1][0], results[i+1][1])
+        pairings.append(tup)
+
+    return pairings
+
 
 

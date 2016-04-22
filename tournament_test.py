@@ -17,7 +17,6 @@ def testCount():
     deleteMatches()
     deletePlayers()
     c = countPlayers()
-    print c
     if c == '0':
         raise TypeError(
             "countPlayers should return numeric zero, not string '0'.")
