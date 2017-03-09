@@ -20,6 +20,10 @@ CREATE TABLE players
 		name VARCHAR(20) NOT NULL
 	);
 
+-- MATCHES TABLE
+-- match_id column represents unique ID record for match
+-- winner column refers to player who won match
+-- loser column refers to player who lost match
 CREATE TABLE matches
 	(
 		match_id SERIAL PRIMARY KEY,
@@ -28,25 +32,19 @@ CREATE TABLE matches
 		CHECK (winner <> loser)
 	);
 
--- STANDINGS TABLE
--- Standings table  references  player id from players table
--- Match column counts number of matches the player has gone through
--- Win column has win count
--- Losses can be determined by subtracting wins from matches (losses = wins-matches)
 
--- CREATE TABLE standings
--- 	(
--- 		id SERIAL PRIMARY KEY,
--- 		p_id INTEGER UNIQUE,
--- 		match INTEGER,
--- 		win INTEGER,
--- 		FOREIGN KEY (p_id) references players(p_id)
--- 	);
-
-	CREATE VIEW standings_view AS
-	SELECT players.p_id, players.name,
-				 COUNT(matches.winner) AS wins,
-				 COALESCE((SELECT COUNT(*) FROM matches WHERE matches.winner = players.p_id OR matches.loser = players.p_id), 0) AS match
-		FROM players LEFT JOIN matches ON matches.winner = players.p_id
-			GROUP BY players.p_id
-			ORDER BY wins;
+--Standings VIEW
+--Utilizes information in existing tables
+--Provides the current standings for all players in the tournament
+--Returns player_id, player name, number of matches won, total matches played
+CREATE VIEW standings_view AS
+	SELECT players.p_id AS pid,
+		players.name AS name,
+		COUNT(matches.winner) AS wins,
+		COALESCE((SELECT COUNT(*)
+			FROM matches
+			WHERE matches.winner = players.p_id
+			OR matches.loser = players.p_id), 0) AS match
+	FROM players LEFT JOIN matches ON matches.winner = players.p_id
+		GROUP BY players.p_id
+		ORDER BY wins;

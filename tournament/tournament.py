@@ -29,7 +29,6 @@ def deletePlayers():
     """Remove all the player records from the database."""
     delete_sql = "delete from players"
     db, c = connect()
-
     c.execute(delete_sql)
     db.commit()
     db.close()
@@ -41,7 +40,6 @@ def countPlayers():
         select count(*) from players
         """
     db, c = connect()
-
     count = c.execute(count_query)
     # Uses fetchone due to one row resulting from count aggregation
     count = c.fetchone()[0]
@@ -60,7 +58,6 @@ def registerPlayer(name):
     """
     insert_sql = """insert into players (name) values (%s)"""
     db, c = connect()
-
     c.execute(insert_sql, (name,))
     db.commit()
     db.close()
@@ -80,29 +77,10 @@ def playerStandings():
         matches: the number of matches the player has played
     """
     standing_query = """select * from standings_view"""
-    # standing_query = """
-    #     select players.p_id, players.name, standings.win, standings.match
-    #     from players left join standings
-    #     on players.p_id = standings.p_id
-    #     order by win
-    #     """
-    # insert_sql = """
-    #     insert into standings
-    #     (p_id, win, match) values (%s, 0, 0)
-    #     """
     db, c = connect()
     playerStandings = c.execute(standing_query)
     playerStandings = c.fetchall()
     db.close()
-    print 'playerSTandings'
-    print playerStandings
-    # for playerStanding in playerStandings:
-    #     if playerStanding[2] is None:
-    #         update = c.execute(insert_sql, (playerStanding[0],))
-    #         db.commit()
-    # playerStandings = c.execute(standing_query)
-    # playerStandings = c.fetchall()
-    # db.close()
     return playerStandings
 
 
@@ -115,15 +93,6 @@ def reportMatch(winner, loser):
     """
     reportMatch_sql = """
         insert into matches (winner, loser) values (%s, %s)"""
-    # update_winner_sql = """
-    #     update standings
-    #     set win = win + 1, match = match + 1
-    #     where p_id = (%s)
-    #     """
-    # update_loser_sql = """
-    #     update standings
-    #     set match = match + 1
-    #     where p_id = (%s)"""
     db, c = connect()
 
     c.execute(reportMatch_sql, (winner, loser,))
@@ -151,6 +120,8 @@ def swissPairings():
         select count(name) from players"""
     count = c.execute(sql_count)
     count = c.fetchone()[0]
+
+    #Check to see an even number of players are present
     if count % 2 == 0:
         results = playerStandings()
         pairings = []
@@ -159,4 +130,4 @@ def swissPairings():
             pairings.append(tup)
         return pairings
     else:
-        return "Uneven number"
+        return "Uneven number of players"
