@@ -113,19 +113,20 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
-    update_winner_sql = """
-        update standings
-        set win = win + 1, match = match + 1
-        where p_id = (%s)
-        """
-    update_loser_sql = """
-        update standings
-        set match = match + 1
-        where p_id = (%s)"""
+    reportMatch_sql = """
+        insert into matches (winner, loser) values (%s, %s)"""
+    # update_winner_sql = """
+    #     update standings
+    #     set win = win + 1, match = match + 1
+    #     where p_id = (%s)
+    #     """
+    # update_loser_sql = """
+    #     update standings
+    #     set match = match + 1
+    #     where p_id = (%s)"""
     db, c = connect()
 
-    c.execute(update_winner_sql, (winner,))
-    c.execute(update_loser_sql, (loser,))
+    c.execute(reportMatch_sql, (winner, loser,))
     db.commit()
     db.close()
 

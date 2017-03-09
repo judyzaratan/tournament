@@ -45,8 +45,8 @@ CREATE TABLE matches
 
 	CREATE VIEW standings_view AS
 	SELECT players.p_id, players.name,
-						COUNT(matches.winner) AS wins,
-		COALESCE(SUM(matches.winner + matches.loser),0) AS matches
-		FROM players LEFT JOIN matches ON players.p_id = matches.winner
-		GROUP BY players.p_id
-		ORDER BY wins;
+				 COUNT(matches.winner) AS wins,
+				 COALESCE((SELECT COUNT(*) FROM matches WHERE matches.winner = players.p_id OR matches.loser = players.p_id), 0) AS match
+		FROM players LEFT JOIN matches ON matches.winner = players.p_id
+			GROUP BY players.p_id
+			ORDER BY wins;
