@@ -6,29 +6,33 @@
 import psycopg2
 
 
-def connect():
-    """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=tournament")
+def connect(database_name="tournament"):
+    try:
+        """Connect to the PostgreSQL database.  Returns a database connection."""
+        db =  psycopg2.connect("dbname={}".format(database_name))
+        cursor = db.cursor()
+        return db, cursor
+    except:
+        print("<error message>")
 
 
 def deleteMatches():
     """Remove all the match records from the database."""
-    delete_sql = "delete from standings"
-    DB = connect()
-    c = DB.cursor()
+    delete_sql = "delete from matches"
+    db, c = connect()
     c.execute(delete_sql)
-    DB.commit()
-    DB.close()
+    db.commit()
+    db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
     delete_sql = "delete from players"
-    DB = connect()
-    c = DB.cursor()
+    db, c = connect()
+
     c.execute(delete_sql)
-    DB.commit()
-    DB.close()
+    db.commit()
+    db.close()
 
 
 def countPlayers():
@@ -36,14 +40,12 @@ def countPlayers():
     count_query = """
         select count(*) from players
         """
-    DB = connect()
-    c = DB.cursor()
+    db, c = connect()
+
     count = c.execute(count_query)
     # Uses fetchone due to one row resulting from count aggregation
-    count = c.fetchone()
-    # Grabs first item in list
-    count = count[0]
-    DB.close()
+    count = c.fetchone()[0]
+    db.close()
     return count
 
 
@@ -57,11 +59,11 @@ def registerPlayer(name):
       name: the player's full name (need not be unique).
     """
     insert_sql = """insert into players (name) values (%s)"""
-    DB = connect()
-    c = DB.cursor()
+    db, c = connect()
+
     c.execute(insert_sql, (name,))
-    DB.commit()
-    DB.close()
+    db.commit()
+    db.close()
 
 
 def playerStandings():
@@ -77,27 +79,30 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-    standing_query = """
-        select players.p_id, players.name, standings.win, standings.match
-        from players left join standings
-        on players.p_id = standings.p_id
-        order by win
-        """
-    insert_sql = """
-        insert into standings
-        (p_id, win, match) values (%s, 0, 0)
-        """
-    DB = connect()
-    c = DB.cursor()
+    standing_query = """select * from standings_view"""
+    # standing_query = """
+    #     select players.p_id, players.name, standings.win, standings.match
+    #     from players left join standings
+    #     on players.p_id = standings.p_id
+    #     order by win
+    #     """
+    # insert_sql = """
+    #     insert into standings
+    #     (p_id, win, match) values (%s, 0, 0)
+    #     """
+    db, c = connect()
     playerStandings = c.execute(standing_query)
     playerStandings = c.fetchall()
-    for playerStanding in playerStandings:
-        if playerStanding[2] is None:
-            update = c.execute(insert_sql, (playerStanding[0],))
-            DB.commit()
-    playerStandings = c.execute(standing_query)
-    playerStandings = c.fetchall()
-    DB.close()
+    db.close()
+    print 'playerSTandings'
+    print playerStandings
+    # for playerStanding in playerStandings:
+    #     if playerStanding[2] is None:
+    #         update = c.execute(insert_sql, (playerStanding[0],))
+    #         db.commit()
+    # playerStandings = c.execute(standing_query)
+    # playerStandings = c.fetchall()
+    # db.close()
     return playerStandings
 
 
@@ -117,12 +122,12 @@ def reportMatch(winner, loser):
         update standings
         set match = match + 1
         where p_id = (%s)"""
-    DB = connect()
-    c = DB.cursor()
+    db, c = connect()
+
     c.execute(update_winner_sql, (winner,))
     c.execute(update_loser_sql, (loser,))
-    DB.commit()
-    DB.close()
+    db.commit()
+    db.close()
 
 
 def swissPairings():
@@ -140,15 +145,17 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-    DB = connect()
-    c = DB.cursor()
-    results = playerStandings()
-    print results
-    pairings = []
-    for i in range(0, len(results), 2):
-        tup = (results[i][0], results[i][1], results[i+1][0], results[i+1][1])
-        pairings.append(tup)
-
-    print pairings
-
-    return pairings
+    db, c = connect()
+    sql_count = """
+        select count(name) from players"""
+    count = c.execute(sql_count)
+    count = c.fetchone()[0]
+    if count % 2 == 0:
+        results = playerStandings()
+        pairings = []
+        for i in range(0, len(results), 2):
+            tup = (results[i][0], results[i][1], results[i+1][0], results[i+1][1])
+            pairings.append(tup)
+        return pairings
+    else:
+        return "Uneven number"
