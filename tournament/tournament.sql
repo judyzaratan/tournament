@@ -13,7 +13,7 @@
 CREATE TABLE players
 	(
 		p_id SERIAL PRIMARY KEY,
-		name TEXT
+		name VARCHAR(20)
 	);
 
 -- STANDINGS TABLE
@@ -30,4 +30,3 @@ CREATE TABLE standings
 		win INTEGER,
 		FOREIGN KEY (p_id) references players(p_id)
 	);
-

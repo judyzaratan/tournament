@@ -8,7 +8,7 @@ This application is written in Python.  [Vagrant](https://www.vagrantup.com/) is
 ##How to run application
 
 1) Run a virtual machine
-⋅⋅⋅Vagrantfile is included in respository.  Please run following commands in Terminal:
+⋅⋅⋅Vagrantfile is included in repository.  Please run following commands in Terminal:
 
 ```
 vagrant up

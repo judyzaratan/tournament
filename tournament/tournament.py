@@ -56,7 +56,7 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-    insert_sql = """insert into players values (%s)"""
+    insert_sql = """insert into players (name) values (%s)"""
     DB = connect()
     c = DB.cursor()
     c.execute(insert_sql, (name,))
@@ -143,9 +143,12 @@ def swissPairings():
     DB = connect()
     c = DB.cursor()
     results = playerStandings()
+    print results
     pairings = []
     for i in range(0, len(results), 2):
         tup = (results[i][0], results[i][1], results[i+1][0], results[i+1][1])
         pairings.append(tup)
+
+    print pairings
 
     return pairings
