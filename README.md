@@ -20,6 +20,11 @@ vagrant ssh
 cd /vagrant/tournament
 ```
 
+3) Create database and import database schemas, by typing in Terminal:
+```
+psql -f tournament.sql
+```
+
 3) Run test suite file to verify functions are functioning as they should be.
 ```
 python tournament_test.py
